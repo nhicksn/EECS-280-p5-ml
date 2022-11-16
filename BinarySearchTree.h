@@ -331,7 +331,7 @@ private:
   // NOTE:    This function must run in constant time.
   //          No iteration or recursion is allowed.
   static bool empty_impl(const Node *node) {
-    if(!node){ return true; }
+    if((!node->right && !node->left) || !node){ return true; }
     else { return false; }
   }
 
@@ -366,7 +366,15 @@ private:
   // EFFECTS: Frees the memory for all nodes used in the tree rooted at 'node'.
   // NOTE:    This function must be tree recursive.
   static void destroy_nodes_impl(Node *node) {
-    assert(false);
+    if(BinarySearchTree::empty()) {
+      delete node;
+    }
+    if(node->right) {
+      destroy_nodes_impl(node->right);
+    }
+    if(node->left) {
+      destroy_nodes_impl(node->left);
+    }
   }
 
   // EFFECTS : Searches the tree rooted at 'node' for an element equivalent

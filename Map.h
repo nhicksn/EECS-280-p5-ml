@@ -112,6 +112,7 @@ public:
   Iterator end() const;
 
 private:
+  BinarySearchTree searchTree;
   // Add a BinarySearchTree private member HERE.
 };
 
