@@ -377,15 +377,10 @@ private:
   // EFFECTS: Frees the memory for all nodes used in the tree rooted at 'node'.
   // NOTE:    This function must be tree recursive.
   static void destroy_nodes_impl(Node *node) {
-    if(empty_impl(node->right) && empty_impl(node->left)) {
-      delete node;
-      return;
-    }
-    if(node->right) {
-      destroy_nodes_impl(node->right);
-    }
-    if(node->left) {
+    if(node) {
       destroy_nodes_impl(node->left);
+      destroy_nodes_impl(node->right);
+      delete node;
     }
   }
 
