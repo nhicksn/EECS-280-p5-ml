@@ -33,6 +33,12 @@ private:
 
   // A custom comparator
   class PairComp {
+    private:
+    //instance of Key_compare
+    public:
+      //bool operator()(pair1, pair2) const{
+      //  return instance of Key_compare(pair1, key, pair2, key);
+      // }
   };
 
 public:
@@ -112,7 +118,7 @@ public:
   Iterator end() const;
 
 private:
-  BinarySearchTree searchTree;
+  BinarySearchTree<Pair_type, PairComp> searchTree;
   // Add a BinarySearchTree private member HERE.
 };
 
