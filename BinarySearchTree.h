@@ -331,7 +331,8 @@ private:
   // NOTE:    This function must run in constant time.
   //          No iteration or recursion is allowed.
   static bool empty_impl(const Node *node) {
-    assert(false);
+    if(!node){ return true; }
+    else { return false; }
   }
 
   // EFFECTS: Returns the size of the tree rooted at 'node', which is the
@@ -339,7 +340,9 @@ private:
   //          tree is 0.
   // NOTE:    This function must be tree recursive.
   static int size_impl(const Node *node) {
-    assert(false);
+    if(!node) { return 0; } //base case
+
+    return 1 + size(node->left) + size(node->right);
   }
 
   // EFFECTS: Returns the height of the tree rooted at 'node', which is the
@@ -347,7 +350,9 @@ private:
   //          The height of an empty tree is 0.
   // NOTE:    This function must be tree recursive.
   static int height_impl(const Node *node) {
-    assert(false);
+    if(!node) { return 0; } //base case
+
+    return 1 + std::max(height(node->left), height(node->right));
   }
 
   // EFFECTS: Creates and returns a pointer to the root of a new node structure
