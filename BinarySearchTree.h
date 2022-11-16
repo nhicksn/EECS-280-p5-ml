@@ -457,7 +457,10 @@ private:
   // HINT: You don't need to compare any elements! Think about the
   //       structure, and where the smallest element lives.
   static Node * min_element_impl(Node *node) {
-    assert(false);
+    if(!node->left) {
+      return node;
+    }
+    return min_element_impl(node->left);
   }
 
   // EFFECTS : Returns a pointer to the Node containing the maximum element
@@ -466,7 +469,10 @@ private:
   // HINT: You don't need to compare any elements! Think about the
   //       structure, and where the largest element lives.
   static Node * max_element_impl(Node *node) {
-    assert(false);
+    if(!node->right) {
+      return node;
+    }
+    return max_element_impl(node->right);
   }
 
 
@@ -474,7 +480,17 @@ private:
   //          rooted at 'node'.
   // NOTE:    This function must be tree recursive.
   static bool check_sorting_invariant_impl(const Node *node, Compare less) {
-    assert(false);
+    if((!node->right && !node->left) || !node) {
+      return true;
+    }
+    Node* leftNode = node->left;
+    T left = leftNode->datum;
+    Node* rightNode = node->right;
+    T right = rightNode->datum;
+    bool current = less(node->datum, right) && less(left, node->datum);
+    bool leftBool = check_sorting_invariant_impl(node->left, less);
+    bool rightBool = check_sorting_invariant_impl(node->right, less);
+    return current && leftBool && rightBool;
   }
 
   // EFFECTS : Traverses the tree rooted at 'node' using an in-order traversal,
@@ -525,9 +541,24 @@ private:
   //       'less' parameter). Based on the result, you gain some information
   //       about where the element you're looking for could be.
   static Node * min_greater_than_impl(Node *node, const T &val, Compare less) {
-    assert(false);
+    if(!node) {
+      return nullptr;
+    }
+    /*Node* rightNode = node->right;
+    Node* leftNode = node->left;
+    T right = rightNode->datum;
+    T left = leftNode->datum;*/
+    if(!node->left && less(val, node->datum)) {
+      return node;
+    }
+    if(less(val, node->datum)) {
+      return min_greater_than_impl(node->left, val, less);
+    }
+    else {
+      return min_greater_than_impl(node->right, val, less);
+    }
+    return nullptr;
   }
-
 
 }; // END of BinarySearchTree class
 
