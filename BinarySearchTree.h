@@ -342,7 +342,7 @@ private:
   static int size_impl(const Node *node) {
     if(!node) { return 0; } //base case
 
-    return 1 + size(node->left) + size(node->right);
+    return 1 + size_impl(node->left) + size_impl(node->right);
   }
 
   // EFFECTS: Returns the height of the tree rooted at 'node', which is the
@@ -352,7 +352,7 @@ private:
   static int height_impl(const Node *node) {
     if(!node) { return 0; } //base case
 
-    return 1 + std::max(height(node->left), height(node->right));
+    return 1 + std::max(height_impl(node->left), height_impl(node->right));
   }
 
   // EFFECTS: Creates and returns a pointer to the root of a new node structure
@@ -366,8 +366,9 @@ private:
   // EFFECTS: Frees the memory for all nodes used in the tree rooted at 'node'.
   // NOTE:    This function must be tree recursive.
   static void destroy_nodes_impl(Node *node) {
-    if(node->right.BinarySearchTree::empty() && node->left.BinarySearchTree::empty()) {
+    if(empty_impl(node->right) && empty_impl(node->left)) {
       delete node;
+      return;
     }
     if(node->right) {
       destroy_nodes_impl(node->right);
@@ -390,7 +391,19 @@ private:
   //       Two elements A and B are equivalent if and only if A is
   //       not less than B and B is not less than A.
   static Node * find_impl(Node *node, const T &query, Compare less) {
-    assert(false);
+    if (!node) {
+      return nullptr;
+    } 
+    // how to use compare less
+    else if (!(less(node->datum, query)) && !(less(query, node->datum))) {
+      return node;
+    } 
+    else if (less(node->datum, query)) {
+      return find_impl(node->right, query, less);
+    } 
+    else {
+  	  return find_impl(node->left, query, less);
+    }
   }
 
   // REQUIRES: item is not already contained in the tree rooted at 'node'
@@ -448,13 +461,13 @@ private:
   //       See https://en.wikipedia.org/wiki/Tree_traversal#In-order
   //       for the definition of a in-order traversal.
   static void traverse_inorder_impl(const Node *node, std::ostream &os) {
-    if(BinarySearchTree::empty()) return;
+    if(empty_impl(node)) return;
     if(node->left) {
-      traverse_inorder(node->left, os);
+      traverse_inorder_impl(node->left, os);
     }
-    os node->datum << " ";
+    os << node->datum << " ";
     if(node->right) {
-      traverse_inorder(node->right, os);
+      traverse_inorder_impl(node->right, os);
     }
   }
 
@@ -466,13 +479,13 @@ private:
   //       See https://en.wikipedia.org/wiki/Tree_traversal#Pre-order
   //       for the definition of a pre-order traversal.
   static void traverse_preorder_impl(const Node *node, std::ostream &os) {
-    if(BinarySearchTree::empty()) return;
+    if(empty_impl(node)) return;
     os << node->datum << " ";
     if(node->left) {
-      traverse_preorder(node->left, os);
+      traverse_preorder_impl(node->left, os);
     }
     if(node->right) {
-      traverse_preorder(node->right, os);
+      traverse_preorder_impl(node->right, os);
     }
   }
 
