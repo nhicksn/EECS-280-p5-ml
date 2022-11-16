@@ -331,7 +331,7 @@ private:
   // NOTE:    This function must run in constant time.
   //          No iteration or recursion is allowed.
   static bool empty_impl(const Node *node) {
-    if((!node->right && !node->left) || !node){ return true; }
+    if(!node){ return true; }
     else { return false; }
   }
 
@@ -366,7 +366,7 @@ private:
   // EFFECTS: Frees the memory for all nodes used in the tree rooted at 'node'.
   // NOTE:    This function must be tree recursive.
   static void destroy_nodes_impl(Node *node) {
-    if(BinarySearchTree::empty()) {
+    if(node->right.BinarySearchTree::empty() && node->left.BinarySearchTree::empty()) {
       delete node;
     }
     if(node->right) {
@@ -448,7 +448,14 @@ private:
   //       See https://en.wikipedia.org/wiki/Tree_traversal#In-order
   //       for the definition of a in-order traversal.
   static void traverse_inorder_impl(const Node *node, std::ostream &os) {
-    assert(false);
+    if(BinarySearchTree::empty()) return;
+    if(node->left) {
+      traverse_inorder(node->left, os);
+    }
+    os node->datum << " ";
+    if(node->right) {
+      traverse_inorder(node->right, os);
+    }
   }
 
   // EFFECTS : Traverses the tree rooted at 'node' using a pre-order traversal,
@@ -459,7 +466,14 @@ private:
   //       See https://en.wikipedia.org/wiki/Tree_traversal#Pre-order
   //       for the definition of a pre-order traversal.
   static void traverse_preorder_impl(const Node *node, std::ostream &os) {
-    assert(false);
+    if(BinarySearchTree::empty()) return;
+    os << node->datum << " ";
+    if(node->left) {
+      traverse_preorder(node->left, os);
+    }
+    if(node->right) {
+      traverse_preorder(node->right, os);
+    }
   }
 
   // EFFECTS : Returns a pointer to the Node containing the smallest element
