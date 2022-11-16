@@ -360,7 +360,18 @@ private:
   //          tree rooted at 'node'.
   // NOTE:    This function must be tree recursive.
   static Node *copy_nodes_impl(Node *node) {
-    assert(false);
+    Node* nodePtr = new Node;
+    nodePtr->datum = node->datum;
+    if(node->right) {
+      nodePtr->right = copy_nodes_impl(node->right);
+    }
+    else nodePtr->right = nullptr;
+    if(node->left) {
+      nodePtr->left = copy_nodes_impl(node->left);
+    }
+    else nodePtr->left = nullptr;
+
+    return nodePtr;
   }
 
   // EFFECTS: Frees the memory for all nodes used in the tree rooted at 'node'.
@@ -422,7 +433,20 @@ private:
   //       template, NOT according to the < operator. Use the "less"
   //       parameter to compare elements.
   static Node * insert_impl(Node *node, const T &item, Compare less) {
-    assert(false);
+    if(!node) {
+      Node* nodePtr = new Node;
+      nodePtr->datum = item;
+      nodePtr->right = nullptr;
+      nodePtr->left = nullptr;
+      return nodePtr;
+    }
+    else if(less(node->datum, item)) {
+      node->right = insert_impl(node->right, item, less);
+    }
+    else {
+      node->left = insert_impl(node->left, item, less);
+    }
+    return node;
   }
 
   // EFFECTS : Returns a pointer to the Node containing the minimum element
