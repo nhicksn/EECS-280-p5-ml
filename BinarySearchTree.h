@@ -484,8 +484,10 @@ private:
     T right = rightNode->datum;
     bool current = less(node->datum, right) && less(left, node->datum);
     bool leftBool = check_sorting_invariant_impl(node->left, less);
+    bool leftSub = less(max_element_impl(node->left)->datum, node->datum);
     bool rightBool = check_sorting_invariant_impl(node->right, less);
-    return current && leftBool && rightBool;
+    bool rightSub = less(node->datum, max_element_impl(node->right)->datum);
+    return current && leftBool && leftSub && rightBool && rightSub;
   }
 
   // EFFECTS : Traverses the tree rooted at 'node' using an in-order traversal,
@@ -546,7 +548,7 @@ private:
     if(!node->left && less(val, node->datum)) {
       return node;
     }
-    if(less(val, node->datum)) {
+    else if(less(val, node->datum)) {
       return min_greater_than_impl(node->left, val, less);
     }
     else {
