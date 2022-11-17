@@ -85,7 +85,12 @@ public:
   // HINT: Since Map is implemented using a BinarySearchTree that stores
   //       (key, value) pairs, you'll need to construct a dummy value
   //       using "Value_type()".
-  Iterator find(const Key_type& k) const;
+  Iterator find(const Key_type& k) const {
+    std::pair<Key_type, Value_type> pear;
+    pear.first = k;
+    pear.second = Value_type();
+    return searchTree.find(pear);
+  }
 
   // MODIFIES: this
   // EFFECTS : Returns a reference to the mapped value for the given
@@ -103,7 +108,20 @@ public:
   //           that element. This ensures the proper value-initialization is done.
   //
   // HINT: http://www.cplusplus.com/reference/map/map/operator[]/
-  Value_type& operator[](const Key_type& k);
+  Value_type& operator[](const Key_type& k) {
+    std::pair<Key_type, Value_type> pear;
+    pear.first = k;
+    Iterator found = searchTree.find(pear);
+    if(found != end()) {
+      return found->second;
+    }
+    else {
+      pear.second = Value_type();
+      searchTree.insert(pear);
+      found = searchTree.find(pear);
+      return found->second;
+    }
+  }
 
   // MODIFIES: this
   // EFFECTS : Inserts the given element into this Map if the given key
@@ -113,10 +131,27 @@ public:
   //           false. Otherwise, inserts the given element and returns
   //           an iterator to the newly inserted element, along with
   //           the value true.
-  std::pair<Iterator, bool> insert(const Pair_type &val);
+  std::pair<Iterator, bool> insert(const Pair_type &val) {
+    Iterator found = searchTree.find(val);
+    std::pair<Iterator, bool> pear;
+    if(found != end()) {
+      pear.first = found;
+      pear.second = false;
+      return pear;
+    }
+    else {
+      searchTree.insert(val);
+      Iterator found2 = searchTree.find(val);
+      pear.first = found2;
+      pear.second = true;
+      return pear;
+    }
+  }
 
   // EFFECTS : Returns an iterator to the first key-value pair in this Map.
-  Iterator begin() const;
+  Iterator begin() const {
+    return searchTree.begin();
+  }
 
   // EFFECTS : Returns an iterator to "past-the-end".
   Iterator end() const {
