@@ -66,6 +66,31 @@ public:
   // you should omit them. A user of the class must be able to create,
   // copy, assign, and destroy Maps.
 
+  // Default contstructor
+  Map() {
+    BinarySearchTree<Pair_type, Key_compare> tree;
+    searchTree(tree);
+  }
+
+  // Copy constructor
+  Map(const Map &other) {
+    searchTree(other.searchTree);
+  }
+
+  // Assignment operator
+  Map &operator=(const Map &rhs) {
+    if(this == &rhs) {
+      return *this;
+    }
+    ~searchTree();
+    searchTree(rhs.searchTree);
+    return *this;
+  }
+
+  //Destructor
+  ~Map() {
+    ~searchTree();
+  }
 
   // EFFECTS : Returns whether this Map is empty.
   bool empty() const {
@@ -86,10 +111,7 @@ public:
   //       (key, value) pairs, you'll need to construct a dummy value
   //       using "Value_type()".
   Iterator find(const Key_type& k) const {
-    std::pair<Key_type, Value_type> pear;
-    pear.first = k;
-    pear.second = Value_type();
-    return searchTree.find(pear);
+    return searchTree.find({k, Value_type()});
   }
 
   // MODIFIES: this
@@ -134,7 +156,7 @@ public:
   std::pair<Iterator, bool> insert(const Pair_type &val) {
     Iterator found = searchTree.find(val);
     std::pair<Iterator, bool> pear;
-    if(found != end()) {
+    if(found != searchTree.end()) {
       pear.first = found;
       pear.second = false;
       return pear;
