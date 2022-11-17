@@ -34,7 +34,7 @@ private:
   // A custom comparator
   class PairComp {
     private:
-      
+      Key_compare less;
     public:
       bool operator()(Pair_type pair1, Pair_type pair2) const {
         return less(pair1.first, pair2.first);
@@ -69,8 +69,7 @@ public:
 
   // EFFECTS : Returns whether this Map is empty.
   bool empty() const {
-    if(searchTree.empty()) return true;
-    else return false;
+    return searchTree.empty();
   }
 
   // EFFECTS : Returns the number of elements in this Map.
@@ -120,13 +119,12 @@ public:
   Iterator begin() const;
 
   // EFFECTS : Returns an iterator to "past-the-end".
-  Iterator end() const;{
+  Iterator end() const {
     return Iterator();
   }
 
 private:
   BinarySearchTree<Pair_type, PairComp> searchTree;
-  // Add a BinarySearchTree private member HERE.
 };
 
 // You may implement member functions below using an "out-of-line" definition
