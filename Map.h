@@ -36,9 +36,9 @@ private:
     private:
     //instance of Key_compare
     public:
-      //bool operator()(pair1, pair2) const{
+      //bool operator()(pair1, pair2) const {
       //  return instance of Key_compare(pair1, key, pair2, key);
-      // }
+      //}
   };
 
 public:
@@ -115,7 +115,9 @@ public:
   Iterator begin() const;
 
   // EFFECTS : Returns an iterator to "past-the-end".
-  Iterator end() const;
+  Iterator end() const;{
+    return Iterator();
+  }
 
 private:
   BinarySearchTree<Pair_type, PairComp> searchTree;
