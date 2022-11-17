@@ -34,11 +34,11 @@ private:
   // A custom comparator
   class PairComp {
     private:
-    //instance of Key_compare
+      
     public:
-      //bool operator()(pair1, pair2) const {
-      //  return instance of Key_compare(pair1, key, pair2, key);
-      //}
+      bool operator()(Pair_type pair1, Pair_type pair2) const {
+        return less(pair1.first, pair2.first);
+      }
   };
 
 public:
@@ -68,11 +68,16 @@ public:
 
 
   // EFFECTS : Returns whether this Map is empty.
-  bool empty() const;
+  bool empty() const {
+    if(searchTree.empty()) return true;
+    else return false;
+  }
 
   // EFFECTS : Returns the number of elements in this Map.
   // NOTE : size_t is an integral type from the STL
-  size_t size() const;
+  size_t size() const {
+    return searchTree.size();
+  }
 
   // EFFECTS : Searches this Map for an element with a key equivalent
   //           to k and returns an Iterator to the associated value if found,
