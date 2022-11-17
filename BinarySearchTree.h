@@ -360,17 +360,13 @@ private:
   //          tree rooted at 'node'.
   // NOTE:    This function must be tree recursive.
   static Node *copy_nodes_impl(Node *node) {
+    if(!node) {
+      return nullptr;
+    }
     Node* nodePtr = new Node;
     nodePtr->datum = node->datum;
-    if(node->right) {
-      nodePtr->right = copy_nodes_impl(node->right);
-    }
-    else nodePtr->right = nullptr;
-    if(node->left) {
-      nodePtr->left = copy_nodes_impl(node->left);
-    }
-    else nodePtr->left = nullptr;
-
+    nodePtr->right = copy_nodes_impl(node->right);
+    nodePtr->left = copy_nodes_impl(node->left);
     return nodePtr;
   }
 
@@ -549,7 +545,13 @@ private:
       return node;
     }
     else if(less(val, node->datum)) {
-      return min_greater_than_impl(node->left, val, less);
+      Node* node1 = min_greater_than_impl(node->left, val, less);
+      if(node1) {
+        return node1;
+      }
+      else if(!node1) {
+        return node;
+      }
     }
     else {
       return min_greater_than_impl(node->right, val, less);
