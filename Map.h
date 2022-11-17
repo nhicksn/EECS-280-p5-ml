@@ -65,32 +65,7 @@ public:
   // If these operations will work correctly without defining them,
   // you should omit them. A user of the class must be able to create,
   // copy, assign, and destroy Maps.
-
-  // Default contstructor
-  Map() {
-    BinarySearchTree<Pair_type, Key_compare> tree;
-    searchTree(tree);
-  }
-
-  // Copy constructor
-  Map(const Map &other) {
-    searchTree(other.searchTree);
-  }
-
-  // Assignment operator
-  Map &operator=(const Map &rhs) {
-    if(this == &rhs) {
-      return *this;
-    }
-    ~searchTree();
-    searchTree(rhs.searchTree);
-    return *this;
-  }
-
-  //Destructor
-  ~Map() {
-    ~searchTree();
-  }
+  
 
   // EFFECTS : Returns whether this Map is empty.
   bool empty() const {
