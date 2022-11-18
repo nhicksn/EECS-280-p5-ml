@@ -20,6 +20,11 @@ TEST(test_size_basic){
     ASSERT_EQUAL(Tree.size(), 2);
 }
 
+TEST(test_size_empty) {
+    BinarySearchTree<int> tree;
+    ASSERT_EQUAL(tree.size(), 0);
+}
+
 //height
 TEST(test_height_basic){
     BinarySearchTree<int> Tree;
@@ -42,6 +47,11 @@ TEST(test_height_one){
     BinarySearchTree<int> Tree;
     Tree.insert(3);
     ASSERT_EQUAL(Tree.height(), 1);
+}
+
+TEST(test_height_empty) {
+    BinarySearchTree<int> tree;
+    ASSERT_EQUAL(tree.height(), 0);
 }
 
 //copy nodes
@@ -174,6 +184,18 @@ TEST(check_sorting_invariant) {
     assert(!tree.check_sorting_invariant());
 }
 
+TEST(check_sorting_invariant_left_subtree) {
+    BinarySearchTree<int> tree;
+    tree.insert(5);
+    tree.insert(1);
+    tree.insert(4);
+    assert(tree.check_sorting_invariant());
+    BinarySearchTree<int>::Iterator iter = tree.begin();
+    ++iter;
+    *iter = 6;
+    assert(!tree.check_sorting_invariant());
+}
+
 //traverse in order
 TEST(test_traverse_in_order) {
     BinarySearchTree<int> tree;
@@ -187,6 +209,22 @@ TEST(test_traverse_in_order) {
     ASSERT_EQUAL(output.str(), correct.str());
 }
 
+TEST(test_traverse_in_order_height_three) {
+    BinarySearchTree<int> tree;
+    tree.insert(4);
+    tree.insert(2);
+    tree.insert(3);
+    tree.insert(1);
+    tree.insert(6);
+    tree.insert(5);
+    tree.insert(7);
+    std::ostringstream output;
+    tree.traverse_inorder(output);
+    std::ostringstream correct;
+    correct << "1 2 3 4 5 6 7 ";
+    ASSERT_EQUAL(output.str(), correct.str());
+}
+
 //traverse preorder
 TEST(test_traverse_preorder) {
     BinarySearchTree<int> tree;
@@ -197,6 +235,22 @@ TEST(test_traverse_preorder) {
     tree.traverse_preorder(output);
     std::ostringstream correct;
     correct << "4 2 6 ";
+    ASSERT_EQUAL(output.str(), correct.str());
+}
+
+TEST(test_traverse_preorder_height_three) {
+    BinarySearchTree<int> tree;
+    tree.insert(4);
+    tree.insert(2);
+    tree.insert(3);
+    tree.insert(1);
+    tree.insert(6);
+    tree.insert(5);
+    tree.insert(7);
+    std::ostringstream output;
+    tree.traverse_preorder(output);
+    std::ostringstream correct;
+    correct << "4 2 1 3 6 5 7 ";
     ASSERT_EQUAL(output.str(), correct.str());
 }
 
