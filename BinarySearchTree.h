@@ -499,7 +499,7 @@ private:
       Node* rightNode = node->right;
       T right = rightNode->datum;
       rightBool = check_sorting_invariant_impl(node->right, less);
-      rightSub = less(node->datum, max_element_impl(node->right)->datum);
+      rightSub = less(node->datum, min_element_impl(node->right)->datum);
       current = current && less(node->datum, right);
     }
     return current && leftBool && leftSub && rightBool && rightSub;

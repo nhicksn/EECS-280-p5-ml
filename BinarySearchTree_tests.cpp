@@ -11,6 +11,24 @@ TEST(test_empty) {
     assert(!Tree.empty());
 }
 
+//begin
+TEST(test_begin_empty) {
+    BinarySearchTree<int> tree;
+    BinarySearchTree<int>::Iterator iter = tree.begin();
+    ASSERT_EQUAL(iter, tree.end());
+    tree.insert(5);
+    iter = tree.begin();
+    ASSERT_EQUAL(*iter, 5);
+}
+
+//end
+TEST(test_end_empty) {
+    BinarySearchTree<int> tree;
+    BinarySearchTree<int>::Iterator iter = tree.end();
+    tree.insert(5);
+    ASSERT_EQUAL(tree.end(), iter);
+}
+
 //size
 TEST(test_size_basic){
     BinarySearchTree<int> Tree;
@@ -243,19 +261,43 @@ TEST(check_sorting_invariant) {
     tree.insert(2);
     assert(tree.check_sorting_invariant());
     BinarySearchTree<int>::Iterator iter = tree.begin();
-    *iter = 2;
+    *iter = 3;
     assert(!tree.check_sorting_invariant());
 }
 
 TEST(check_sorting_invariant_left_subtree) {
     BinarySearchTree<int> tree;
-    tree.insert(5);
-    tree.insert(1);
     tree.insert(4);
+    tree.insert(2);
+    tree.insert(3);
+    tree.insert(1);
+    tree.insert(7);
+    tree.insert(6);
+    tree.insert(8);
     assert(tree.check_sorting_invariant());
     BinarySearchTree<int>::Iterator iter = tree.begin();
     ++iter;
-    *iter = 6;
+    ++iter;
+    *iter = 5;
+    assert(!tree.check_sorting_invariant());
+}
+
+TEST(check_sorting_invariant_right_subtree) {
+    BinarySearchTree<int> tree;
+    tree.insert(5);
+    tree.insert(2);
+    tree.insert(3);
+    tree.insert(1);
+    tree.insert(7);
+    tree.insert(6);
+    tree.insert(8);
+    assert(tree.check_sorting_invariant());
+    BinarySearchTree<int>::Iterator iter = tree.begin();
+    ++iter;
+    ++iter;
+    ++iter;
+    ++iter;
+    *iter = 4;
     assert(!tree.check_sorting_invariant());
 }
 
