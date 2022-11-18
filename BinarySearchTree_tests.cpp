@@ -72,6 +72,19 @@ TEST(test_copy_constructor) {
     ASSERT_EQUAL(tree2.size(), 2);
 }
 
+TEST(test_copy_constructor_empty) {
+    BinarySearchTree<int> tree1;
+    BinarySearchTree<int> tree2 = tree1;
+    assert(tree1.empty());
+    assert(tree2.empty());
+    tree1.insert(5);
+    assert(tree2.empty());
+    assert(!tree1.empty());
+    tree2.insert(4);
+    ASSERT_EQUAL(tree1.size(), 1);
+    ASSERT_EQUAL(tree2.size(), 1);
+}
+
 //destroy nodes
 TEST(test_assignment_operator) {
     BinarySearchTree<int> tree1;
@@ -96,6 +109,40 @@ TEST(test_assignment_operator) {
     ASSERT_EQUAL(iter, tree2.end());
 }
 
+TEST(test_assigment_operator_first_empty) {
+    BinarySearchTree<int> tree1;
+    BinarySearchTree<int> tree2;
+    tree2.insert(5);
+    assert(!tree2.empty());
+    assert(tree1.empty());
+    tree2 = tree1;
+    assert(tree2.empty());
+}
+
+TEST(test_assigment_operator_second_empty) {
+    BinarySearchTree<int> tree1;
+    BinarySearchTree<int> tree2;
+    tree1.insert(5);
+    assert(!tree1.empty());
+    assert(tree2.empty());
+    tree2 = tree1;
+    assert(!tree2.empty());
+}
+
+TEST(test_assigment_operator_both_empty) {
+    BinarySearchTree<int> tree1;
+    BinarySearchTree<int> tree2;
+    assert(tree1.empty());
+    assert(tree2.empty());
+    tree2 = tree1;
+    assert(tree2.empty());
+    tree1.insert(5);
+    assert(tree2.empty());
+    tree2.insert(4);
+    ASSERT_EQUAL(tree1.size(), 1);
+    ASSERT_EQUAL(tree2.size(), 1);
+}
+
 //find
 TEST(test_find_basic) {
     BinarySearchTree<int> tree;
@@ -112,6 +159,12 @@ TEST(test_find_basic) {
     ASSERT_EQUAL(iter, iter2);
     iter2 = tree.find(3);
     ASSERT_EQUAL(tree.end(), iter2);
+}
+
+TEST(test_find_empty) {
+    BinarySearchTree<int> tree;
+    BinarySearchTree<int>::Iterator iter = tree.find(0);
+    ASSERT_EQUAL(iter, tree.end());
 }
 
 //min element
@@ -143,6 +196,11 @@ TEST(test_min_element_node_is_min){
     ASSERT_EQUAL(*Tree.min_element(), 3);
 }
 
+TEST(test_min_empty) {
+    BinarySearchTree<int> tree;
+    ASSERT_EQUAL(tree.min_element(), tree.end());
+}
+
 //max element
 TEST(test_max_element_basic){
     BinarySearchTree<int> Tree;
@@ -172,6 +230,11 @@ TEST(test_max_element_node_is_max){
     ASSERT_EQUAL(*Tree.max_element(), 13);
 }
 
+TEST(test_max_empty) {
+    BinarySearchTree<int> tree;
+    ASSERT_EQUAL(tree.max_element(), tree.end());
+}
+
 //check sorting invariant
 TEST(check_sorting_invariant) {
     BinarySearchTree<int> tree;
@@ -194,6 +257,11 @@ TEST(check_sorting_invariant_left_subtree) {
     ++iter;
     *iter = 6;
     assert(!tree.check_sorting_invariant());
+}
+
+TEST(check_sorting_invariant_empty) {
+    BinarySearchTree<int> tree;
+    assert(tree.check_sorting_invariant());
 }
 
 //traverse in order
@@ -222,6 +290,15 @@ TEST(test_traverse_in_order_height_three) {
     tree.traverse_inorder(output);
     std::ostringstream correct;
     correct << "1 2 3 4 5 6 7 ";
+    ASSERT_EQUAL(output.str(), correct.str());
+}
+ 
+TEST(test_traverse_inorder_empty) {
+    BinarySearchTree<int> tree;
+    std::ostringstream output;
+    tree.traverse_inorder(output);
+    std::ostringstream correct;
+    correct << "";
     ASSERT_EQUAL(output.str(), correct.str());
 }
 
@@ -254,6 +331,15 @@ TEST(test_traverse_preorder_height_three) {
     ASSERT_EQUAL(output.str(), correct.str());
 }
 
+TEST(test_traverse_preorder_empty) {
+    BinarySearchTree<int> tree;
+    std::ostringstream output;
+    tree.traverse_preorder(output);
+    std::ostringstream correct;
+    correct << "";
+    ASSERT_EQUAL(output.str(), correct.str());
+}
+
 //min greater than
 TEST(min_greater_than) {
     BinarySearchTree<int> tree;
@@ -263,6 +349,12 @@ TEST(min_greater_than) {
     BinarySearchTree<int>::Iterator iter = tree.min_greater_than(2);
     ASSERT_EQUAL(*iter, 4);
     iter = tree.min_greater_than(6);
+    ASSERT_EQUAL(iter, tree.end());
+}
+
+TEST(min_greater_than_empty) {
+    BinarySearchTree<int> tree;
+    BinarySearchTree<int>::Iterator iter = tree.min_greater_than(5);
     ASSERT_EQUAL(iter, tree.end());
 }
 
