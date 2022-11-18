@@ -474,25 +474,21 @@ private:
     if((!node->right && !node->left) || !node) {
       return true;
     }
-    Node* leftNode;
-    Node* rightNode;
-    T left;
-    T right;
     bool leftBool = true;
     bool leftSub = true;
     bool rightBool = true;
     bool rightSub = true;
     bool current = true;
     if(node->left) {
-      leftNode = node->left;
-      left = leftNode->datum;
+      Node* leftNode = node->left;
+      T left = leftNode->datum;
       leftBool = check_sorting_invariant_impl(node->left, less);
       leftSub = less(max_element_impl(node->left)->datum, node->datum);
       current = current && less(left, node->datum);
     }
     if(node->right) {
-      rightNode = node->right;
-      right = rightNode->datum;
+      Node* rightNode = node->right;
+      T right = rightNode->datum;
       rightBool = check_sorting_invariant_impl(node->right, less);
       rightSub = less(node->datum, max_element_impl(node->right)->datum);
       current = current && less(node->datum, right);
