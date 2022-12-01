@@ -27,6 +27,13 @@ if( argc == 4){
     }
 }
 
+//Debugger/Output Toggle
+bool debugToggle = false;
+
+if(argc = 4){
+    debugToggle = true;
+}
+
 string trainFileName = argv[1];
 string testFileName = argv[2];
 
@@ -37,7 +44,7 @@ finTrain.open(trainFileName);
 ifstream finTest;
 finTest.open(testFileName);
 
-    // check for errors
+// check for errors
 if (!finTrain.is_open() || !finTest.is_open()) {
     cout << "Error opening file: " << trainFileName << endl;
     return 1;
