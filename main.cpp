@@ -21,7 +21,7 @@ if (argc != 3 || argc != 4){
     cout << "Usage: main.exe TRAIN_FILE TEST_FILE [--debug]" << endl;
 }
 
-if( argv[3] != ""){
+if( argc == 4){
     if (argv[3] != "--debug"){
         cout << "Usage: main.exe TRAIN_FILE TEST_FILE [--debug]" << endl;
     }
