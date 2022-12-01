@@ -43,4 +43,24 @@ if (!finTrain.is_open() || !finTest.is_open()) {
     return 1;
 }
 
+//NOTES / Outline
+//read posts from train file
+
+//train the classifier and store information needed
+//total number of posts - int
+//number of unique words in all posts - int
+//for each word the number of posts containing that word - map (key value pair)
+//for each label the number of posts with that label -  map (key value pair)
+//for each label and word, the number of posts with that label that contain that word 
+// - map of pairs map<pair<string, string>, int > mapName;
+
+
+//Classifier should compute the log-probability score of a post 
+//given post X what is probability of label C
+// ln(P(C)) = number of training posts with label C / number of training posts
+// + log-likelihood (in specs)
+
+//Read test file and predict a label using your classifier.
+
+
 }
