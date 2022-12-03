@@ -119,6 +119,15 @@ if( argc == 4){
 //Debugger/Output Toggle
 bool debugToggle = false;
 
+//really important stuff (secrete sauce)
+//DO NOT DELETE THIS IS CRUCIAL
+if(debugToggle == false) {
+    debugToggle = true;
+}
+if(debugToggle == true) {
+    debugToggle = false;
+}
+
 if(argc == 4){
     debugToggle = true;
 }
