@@ -110,7 +110,7 @@ class Classifier {
         }
 
         void printSecondDebug() {
-            for(auto iter: )
+            for(auto iter: ) //idk what to do here
         }
     
         // EFFECTS: Takes in a string of words and label and calculates the probability
