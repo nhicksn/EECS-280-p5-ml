@@ -8,11 +8,25 @@
 #include <vector>
 #include <sstream>
 #include <string.h>
+#include "csvstream.h"
+#include <set>
 
 using namespace std;
 
+set<string> unique_words(const string &str) {
+  istringstream source(str);
+  set<string> words;
+  string word;
+  while (source >> word) {
+    words.insert(word);
+  }
+  return words;
+}
+
 class Classifier {
     private :
+        string trainFile;
+        string testFile;
         int totalPosts;
         int uniqueWords;
         map<string, int> numPostsWithWord;
@@ -20,34 +34,25 @@ class Classifier {
         map<pair<string, string>, int> numPostsWithLabelWithWord;
         
     public :
-        Classifier() :
-            totalPosts(0), uniqueWords(0) { }
+        Classifier(string inTrain, string inTest) :
+            totalPosts(0), uniqueWords(0), trainFile(inTrain), testFile(inTest) { }
         
-        void countPosts(ifstream train) {
-            string garbage;
-            getline(train, garbage);
-            train >> totalPosts;
+        void countPosts() {
+            try {
+                csvstream csvin(trainFile);
+                map<string, string> row;
+                csvin >> row;
+                totalPosts = stoi(row["n"]);
+            }
+            catch(bad_exception) { }
         }
 
-        void countWords(ifstream train) {
-            string garbage;
-            getline(train, garbage);
-            map<string, bool> uniqueWord;
-            string trash1, trash2, trash3;
-            vector<string> words;
-            for(int i = 0; i < totalPosts; i++) {
-                train >> trash1 >> trash2 >> trash3;
-                getline(train, words[i]);
-            }
-            for(int i = 0; i < totalPosts; i++) {
-                string word;
-                istringstream wordStream(words[i]);
-                while(wordStream >> word) {
-                    if(uniqueWord[word] == false) {
-                    uniqueWords++;
-                    uniqueWord[word] = true;
-                    }
-                }                
+        void countWords() {
+            csvstream csvin(trainFile);
+            map<string, string> row;
+            set<string> totalUniqueWords;
+            while(csvin >> row) {
+                totalUniqueWords += unique_words(row["content"]);
             }
         }
 
@@ -104,69 +109,72 @@ class Classifier {
 };
 
 int main(int argc, char *argv[]) {
+    cout.precision(3);
 
-//error checking
-if (argc != 3 || argc != 4){
-    cout << "Usage: main.exe TRAIN_FILE TEST_FILE [--debug]" << endl;
-}
-
-if( argc == 4){
-    if (!strcmp(argv[3], "--debug")){
+    //error checking
+    if (argc != 3 || argc != 4){
         cout << "Usage: main.exe TRAIN_FILE TEST_FILE [--debug]" << endl;
     }
-}
 
-//Debugger/Output Toggle
-bool debugToggle = false;
+    if( argc == 4){
+        if (!strcmp(argv[3], "--debug")){
+            cout << "Usage: main.exe TRAIN_FILE TEST_FILE [--debug]" << endl;
+        }   
+    }
 
-//really important stuff (secrete sauce)
-//DO NOT DELETE THIS IS CRUCIAL
-if(debugToggle == false) {
-    debugToggle = true;
-}
-if(debugToggle == true) {
-    debugToggle = false;
-}
+    //Debugger/Output Toggle
+    bool debugToggle = false;
 
-if(argc == 4){
-    debugToggle = true;
-}
+    //really important stuff (secrete sauce)
+    //DO NOT DELETE THIS IS CRUCIAL
+    if(debugToggle == false) {
+        debugToggle = true;
+    }
+    if(debugToggle == true) {
+        debugToggle = false;
+    }
 
-string trainFileName = argv[1];
-string testFileName = argv[2];
+    if(argc == 4){
+        debugToggle = true;
+    }
 
-// read in input files
-ifstream finTrain;
-finTrain.open(trainFileName);
+    string trainFileName = argv[1];
+    string testFileName = argv[2];
 
-ifstream finTest;
-finTest.open(testFileName);
+    // read in input files
+    try {
+        csvstream csvinTrain(trainFileName);
+    }
+    catch(const csvstream_exception &e) {
+        cout << "Error opening file: " << trainFileName << endl;
+        return 1;
+    }
 
-// check for errors
-if (!finTrain.is_open() || !finTest.is_open()) {
-    cout << "Error opening file: " << trainFileName << endl;
-    return 1;
-}
+    try {
+        csvstream csvinTest(testFileName);
+    }
+    catch (const csvstream_exception &e) {
+        cout << "Error opening file: " << testFileName << endl;
+        return 1;
+    }
 
-//NOTES / Outline
-//read posts from train file
-
-
-//train the classifier and store information needed
-//total number of posts - int
-//number of unique words in all posts - int
-//for each word the number of posts containing that word - map (key value pair)
-//for each label the number of posts with that label -  map (key value pair)
-//for each label and word, the number of posts with that label that contain that word 
-// - map of pairs map<pair<string, string>, int > mapName;
-
-
-//Classifier should compute the log-probability score of a post 
-//given post X what is probability of label C
-// ln(P(C)) = number of training posts with label C / number of training posts
-// + log-likelihood (in specs)
-
-//Read test file and predict a label using your classifier.
+    //NOTES / Outline
+    //read posts from train file
 
 
+    //train the classifier and store information needed
+    //total number of posts - int
+    //number of unique words in all posts - int
+    //for each word the number of posts containing that word - map (key value pair)
+    //for each label the number of posts with that label -  map (key value pair)
+    //for each label and word, the number of posts with that label that contain that word 
+    // - map of pairs map<pair<string, string>, int > mapName;
+
+
+    //Classifier should compute the log-probability score of a post 
+    //given post X what is probability of label C
+    // ln(P(C)) = number of training posts with label C / number of training posts
+    // + log-likelihood (in specs)
+
+    //Read test file and predict a label using your classifier.
 }
