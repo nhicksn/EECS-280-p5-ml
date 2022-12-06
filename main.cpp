@@ -51,57 +51,43 @@ class Classifier {
             csvstream csvin(trainFile);
             map<string, string> row;
             set<string> totalUniqueWords;
+            string allWords;
             while(csvin >> row) {
-                totalUniqueWords += unique_words(row["content"]);
+                allWords += row["content"];
             }
+            uniqueWords = unique_words(allWords).size();
+
         }
 
-        void numPostsWord(ifstream train, string inputWord) {
-            string garbage;
-            getline(train, garbage);
-            string trash1, trash2, trash3;
-            vector<string> words;
-            for(int i = 0; i < totalPosts; i++) {
-                train >> trash1 >> trash2 >> trash3;
-                getline(train, words[i]);
-            }
-            for(int i = 0; i < totalPosts; i++) {
-                string word;
-                istringstream wordStream(words[i]);
-                while(wordStream >> word) {
-                    if(inputWord == word) {
-                        numPostsWithWord[inputWord]++;
-                        continue;
-                    }
+        void numPostsWord(string inputWord) {
+            csvstream csvin(trainFile);
+            map<string, string> row;
+            while(csvin >> row) {
+                set<string> unique = unique_words(row["content"]);
+                if(unique.find(inputWord) != unique.end()) {
+                    numPostsWithWord[inputWord]++;
                 }
             }
         }
 
-        void numPostsLabel(ifstream train, string inputLabel) {
-            string garbage;
-            getline(train, garbage);
-            string trash1, trash2, trash3, label;
-            for(int i = 0; i < totalPosts; i++) {
-                train >> trash1 >> trash2 >> label >> trash3;
-                if(inputLabel == label) {
+        void numPostsLabel(string inputLabel) {
+            csvstream csvin(trainFile);
+            map<string, string> row;
+            while(csvin >> row) {
+                if(inputLabel == row["tag"]) {
                     numPostsWithLabel[inputLabel]++;
                 }
             }
         }
 
-        void numPostsWordLabel(ifstream train, string inputWord, string inputLabel) {
-            string garbage;
-            getline(train, garbage);
-            string trash1, trash2, label, words, wordCheck;
-            for(int i = 0; i < totalPosts; i++) {
-                train >> trash1 >> trash2 >> label >> words;
-                if(label == inputLabel) {
-                    stringstream wordStream(words);
-                    while(wordStream >> wordCheck) {
-                        if(wordCheck == inputWord) {
-                            numPostsWithLabelWithWord[{inputLabel, inputWord}]++;
-                            continue;
-                        }
+        void numPostsWordLabel(string inputWord, string inputLabel) {
+            csvstream csvin(trainFile);
+            map<string, string> row;
+            while(csvin >> row) {
+                if(inputLabel == row["tag"]) {
+                    set<string> content = unique_words(row["content"]);
+                    if(content.find(inputWord) != content.end()) {
+                        numPostsWithLabelWithWord[{inputLabel, inputWord}]++;
                     }
                 }
             }
@@ -141,23 +127,6 @@ int main(int argc, char *argv[]) {
     string trainFileName = argv[1];
     string testFileName = argv[2];
 
-    // read in input files
-    try {
-        csvstream csvinTrain(trainFileName);
-    }
-    catch(const csvstream_exception &e) {
-        cout << "Error opening file: " << trainFileName << endl;
-        return 1;
-    }
-
-    try {
-        csvstream csvinTest(testFileName);
-    }
-    catch (const csvstream_exception &e) {
-        cout << "Error opening file: " << testFileName << endl;
-        return 1;
-    }
-
     //NOTES / Outline
     //read posts from train file
 
@@ -170,6 +139,15 @@ int main(int argc, char *argv[]) {
     //for each label and word, the number of posts with that label that contain that word 
     // - map of pairs map<pair<string, string>, int > mapName;
 
+    Classifier classi(trainFileName, testFileName);
+
+    try {
+        classi.countPosts();
+    }
+    catch(const csvstream_exception &e) {
+        cout << "Error opening file: " << trainFileName << endl;
+        return 1;
+    }
 
     //Classifier should compute the log-probability score of a post 
     //given post X what is probability of label C
