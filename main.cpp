@@ -26,116 +26,133 @@ set<string> unique_words(const string &str) {
 
 class Classifier {
     private :
-        bool debugToggle;
-        string trainFile;
-        string testFile;
         int totalPosts;
-        int uniqueWords;
+        set<string> uniqueWords;
         map<string, int> numPostsWithWord;
         map<string, int> numPostsWithLabel;
         map<pair<string, string>, int> numPostsWithLabelWithWord;
         
     public :
-        Classifier(string inTrain, string inTest, bool debugIn) :
-            debugToggle(debugIn), trainFile(inTrain), testFile(inTest), totalPosts(0), 
-            uniqueWords(0) {}
-        
+        Classifier() :
+            totalPosts(0) { }
+
         void countPosts() {
-            csvstream csvin(trainFile);
-            map<string, string> row;
-            csvin >> row;
-            totalPosts = stoi(row["n"]);
-            cout << "trained on " << totalPosts << " examples" << endl;
+            totalPosts++;
         }
 
-        void countWords() {
-            csvstream csvin(trainFile);
-            map<string, string> row;
-            string allWords;
-            while(csvin >> row) {
-                allWords += row["content"] + " ";
+        void countWords(const string &content) {
+            set<string> uniqueContent = unique_words(content);
+            for(auto &word: uniqueContent) {
+                uniqueWords.insert(word);
             }
-            uniqueWords = unique_words(allWords).size();
-            if(debugToggle) {
-                cout << "vocabulary size = " << uniqueWords << endl;
+        }
+
+        void numPostsWord(const string &content) {
+            set<string> uniqueContent = unique_words(content);
+            for(auto &word: uniqueWords) {
+                if(uniqueContent.find(word) != uniqueContent.end()) {
+                    numPostsWithWord[word]++;
+                }
+            }
+        }
+
+        void numPostsLabel(const string &label) {
+            numPostsWithLabel[label]++;
+        }
+
+        void numPostsWordLabel(const string &content, const string &label) {
+            set<string> unique = unique_words(content);
+            for(auto &word: unique) {
+                numPostsWithLabelWithWord[{word, label}]++;
+            }
+        }
+
+        void printFirstDebug(const string &content, const string &label) const {
+            cout << "  label = " << label << ", content = " << content << endl;
+        }
+
+        void printSecondDebug() {
+            cout << "classes:" << endl;
+            for(auto &iter: numPostsWithLabel) {
+                string label = iter.first;
+                int numPosts = numPostsWithLabel[label];
+                cout << "  " << label << ", " << numPosts << " examples, log-prior = " 
+                << log(1.0*numPosts/totalPosts) << endl;
+            }
+        }
+
+        void printThirdDebug() {
+            cout << "classifier parameters:" << endl;
+            for(auto &iter: numPostsWithLabel) {
+                string label = iter.first;
+                for(auto &word: uniqueWords) {
+                    if(numPostsWithLabelWithWord.count({word, label})) {
+                        int count = numPostsWithLabelWithWord.at({word, label});
+                        cout << " " << label << ":" << word << ", count = " << count
+                        << ", log-likelihood = " 
+                        << log(1.0*count/numPostsWithLabel[label]) << endl;
+                    }
+                }
             }
             cout << endl;
         }
 
-        void numPostsWord(const string &inputWord) {
-            csvstream csvin(trainFile);
-            map<string, string> row;
-            while(csvin >> row) {
-                set<string> unique = unique_words(row["content"]);
-                if(unique.find(inputWord) != unique.end()) {
-                    numPostsWithWord[inputWord]++;
-                }
-            }
+        void printNumPosts() {
+            cout << "trained on " << totalPosts << " examples" << endl;
         }
 
-        void numPostsLabel(const string &inputLabel) {
-            csvstream csvin(trainFile);
-            map<string, string> row;
-            while(csvin >> row) {
-                if(inputLabel == row["tag"]) {
-                    numPostsWithLabel[inputLabel]++;
-                }
-            }
-        }
-
-        void numPostsWordLabel(const string &inputWord, const string &inputLabel) {
-            csvstream csvin(trainFile);
-            map<string, string> row;
-            while(csvin >> row) {
-                if(inputLabel == row["tag"]) {
-                    set<string> content = unique_words(row["content"]);
-                    if(content.find(inputWord) != content.end()) {
-                        numPostsWithLabelWithWord[{inputLabel, inputWord}]++;
-                    }
-                }
-            }
-        }
-
-        void printFirstDebug() const {
-            csvstream csvin(trainFile);
-            map<string, string> row;
-            cout << "training data:" << endl;
-            while(csvin >> row) {
-                cout << "  label = " << row["tag"] << ", content = " << row["content"] 
-                    << endl;
-            }
-        }
-
-        void printSecondDebug() {
-            cout << "classes: " << endl;
-            for(auto iter: numPostsWithLabel) {
-                string label = iter.first;
-                int numPosts = numPostsWithLabel[label];
-                cout << label << ", " << numPosts << " examples, log-prior = " 
-                << log(1.0*numPosts/totalPosts) << endl;
-            }
+        void printNumWords() {
+            cout << "vocabulary size = " << uniqueWords.size() << endl;
         }
     
         // EFFECTS: Takes in a string of words and label and calculates the probability
         // that this string of words is associated with that label
-        double calcProb(const string &inputWords, const string &inputLabel) {
-            set<string> content = unique_words(inputWords);
-            double prob = 0;
-            prob += log(numPostsWithLabel[inputLabel]/totalPosts);
-            for(auto word: content) {
-                if(numPostsWithWord.find(word) == numPostsWithWord.end()) {
-                    prob += log(1/totalPosts);
+        // double calcProb(const string &inputWords, const string &inputLabel) {
+        //     set<string> content = unique_words(inputWords);
+        //     double prob = 0;
+        //     prob += log(numPostsWithLabel[inputLabel]/totalPosts);
+        //     for(auto word: content) {
+        //         if(numPostsWithWord.find(word) == numPostsWithWord.end()) {
+        //             prob += log(1/totalPosts);
+        //         }
+        //         else if(numPostsWithLabelWithWord.find({word, inputLabel}) 
+        //                 == numPostsWithLabelWithWord.end()) {
+        //             prob += log(numPostsWithWord[word]/totalPosts);
+        //         }
+        //         else {
+        //             prob += log(numPostsWithLabelWithWord[{word, inputLabel}]
+        //                         /numPostsWithLabel[inputLabel]);
+        //         }
+        //     }
+        //     return prob;
+        // }
+
+        pair<string, double> calcProb(const string &allContent) {
+            set<string> content = unique_words(allContent);
+            double maxProb = -1000000;
+            string maxLabel;
+            for(auto &iter: numPostsWithLabel) {
+                double prob = 0;
+                string label = iter.first;
+                prob += log(1.0*numPostsWithLabel[label]/totalPosts);
+                for(auto &word: content) {
+                    if(!numPostsWithWord.count(word)) {
+                        prob += log(1.0/totalPosts);
+                    }
+                    else if(!numPostsWithLabelWithWord.count({word, label})) {
+                        prob += log(1.0*numPostsWithWord[word]/totalPosts);
+                    }
+                    else {
+                        prob += log(1.0*numPostsWithLabelWithWord[{word, label}]
+                                    /numPostsWithLabel[label]);
+                    }
                 }
-                else if(numPostsWithLabelWithWord.find({word, inputLabel}) 
-                        == numPostsWithLabelWithWord.end()) {
-                    prob += log(numPostsWithWord[word]/totalPosts);
-                }
-                else {
-                    prob += log(numPostsWithLabelWithWord[{word, inputLabel}]
-                                /numPostsWithLabel[inputLabel]);
+                if(prob > maxProb) {
+                    maxProb = prob;
+                    maxLabel = label;
                 }
             }
-            return prob;
+            return {maxLabel, maxProb};
         }
 };
 
@@ -143,12 +160,12 @@ int main(int argc, char *argv[]) {
     cout.precision(3);
 
     //error checking
-    if (argc != 3 && argc != 4){
+    if (argc != 3 && argc != 4) {
         cout << "Usage: main.exe TRAIN_FILE TEST_FILE [--debug]" << endl;
         return 1;
     }
 
-    if( argc == 4){
+    if(argc == 4) {
         if (!strcmp(argv[3], " --debug")){
             cout << "Usage: main.exe TRAIN_FILE TEST_FILE [--debug]" << endl;
             return 1;
@@ -157,14 +174,14 @@ int main(int argc, char *argv[]) {
 
     //Debugger/Output Toggle
     bool debugToggle = false;
-    if(argc == 4){
+    if(argc == 4) {
         debugToggle = true;
     }
 
     string trainFileName = argv[1];
     string testFileName = argv[2];
 
-    Classifier classi(trainFileName, testFileName, debugToggle);
+    Classifier classi;
 
     // make sure that both input files open correctly
     try {
@@ -182,63 +199,54 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    if(debugToggle) {
-        classi.printFirstDebug();
-    }
-
-    classi.countPosts();
-    classi.countWords();
     csvstream csvinTrain(trainFileName);
-    set<string> content, labels;
-    string allWords, allLabels;
     map<string, string> row;
 
+    if(debugToggle) {
+        cout << "training data:" << endl;
+    }
+
+    // train the classifier
     while(csvinTrain >> row) {
-        allWords += row["content"] + " ";
-        allLabels += row["tag"] + " ";
-    }
-
-    content = unique_words(allWords);
-    labels = unique_words(allLabels);
-
-    for(auto iter: content) {
-        classi.numPostsWord(iter);
-    }
-
-    for(auto iter: labels) {
-        classi.numPostsLabel(iter);
-    }
-
-    for(auto tag: labels) {
-        for(auto word: content) {
-            classi.numPostsWordLabel(word, tag);
+        classi.countPosts();
+        classi.countWords(row["content"]);
+        classi.numPostsWord(row["content"]);
+        classi.numPostsLabel(row["tag"]);
+        classi.numPostsWordLabel(row["content"], row["tag"]);
+        if(debugToggle) {
+            classi.printFirstDebug(row["content"], row["tag"]);
         }
     }
-
+    
+    // print the trained data
+    classi.printNumPosts();
+    if(debugToggle) {
+        classi.printNumWords();
+    }
+    cout << endl;
     if(debugToggle) {
         classi.printSecondDebug();
+        classi.printThirdDebug();
     }
 
     csvstream csvinTest(testFileName);
-    double prob, maxProb;
-    string maxTag, allTags;
-    map<string, string> row2, contentToTag; // maps the content to the most likely tag
 
-    // get all the unique tags from the test file
-    while(csvinTest >> row2) {
-        allTags += row2["tag"] + " ";
-    }
-    set<string> tags = unique_words(allTags);
+    cout << "test data:" << endl;
 
-    // calculate the most likely tag for each post
-    while(csvinTest >> row2) {
-        for(auto tag: tags) {
-            prob = classi.calcProb(row2["content"], tag);
-            if(prob > maxProb) {
-                maxTag = tag;
-                maxProb = prob;
-            }
+    int numCorrect, totalNum = 0;
+    
+    // run the classifier on the data
+    while(csvinTest >> row) {
+        if(row["tag"] == classi.calcProb(row["content"]).first) {
+            numCorrect++;
         }
-        contentToTag[row2["content"]] = maxTag;
+        totalNum++;
+        cout << "  correct = " << row["tag"] << ", predicted = " << 
+        classi.calcProb(row["content"]).first << ", log-probability score = " <<
+        classi.calcProb(row["content"]).second << endl;
+        cout << "  content = " << row["content"] << endl << endl;
     }
+
+    cout << endl << "performace: " << numCorrect << " / " << totalNum << 
+    " posts predicted correctly" << endl << endl;
 }
