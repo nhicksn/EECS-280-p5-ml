@@ -104,28 +104,6 @@ class Classifier {
         void printNumWords() {
             cout << "vocabulary size = " << uniqueWords.size() << endl;
         }
-    
-        // EFFECTS: Takes in a string of words and label and calculates the probability
-        // that this string of words is associated with that label
-        // double calcProb(const string &inputWords, const string &inputLabel) {
-        //     set<string> content = unique_words(inputWords);
-        //     double prob = 0;
-        //     prob += log(numPostsWithLabel[inputLabel]/totalPosts);
-        //     for(auto word: content) {
-        //         if(numPostsWithWord.find(word) == numPostsWithWord.end()) {
-        //             prob += log(1/totalPosts);
-        //         }
-        //         else if(numPostsWithLabelWithWord.find({word, inputLabel}) 
-        //                 == numPostsWithLabelWithWord.end()) {
-        //             prob += log(numPostsWithWord[word]/totalPosts);
-        //         }
-        //         else {
-        //             prob += log(numPostsWithLabelWithWord[{word, inputLabel}]
-        //                         /numPostsWithLabel[inputLabel]);
-        //         }
-        //     }
-        //     return prob;
-        // }
 
         pair<string, double> calcProb(const string &allContent) {
             set<string> content = unique_words(allContent);
