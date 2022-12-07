@@ -155,7 +155,6 @@ int main(int argc, char *argv[]) {
 
     //Debugger/Output Toggle
     bool debugToggle = false;
-
     if(argc == 4){
         debugToggle = true;
     }
@@ -163,20 +162,9 @@ int main(int argc, char *argv[]) {
     string trainFileName = argv[1];
     string testFileName = argv[2];
 
-    //NOTES / Outline
-    //read posts from train file
-
-
-    //train the classifier and store information needed
-    //total number of posts - int
-    //number of unique words in all posts - int
-    //for each word the number of posts containing that word - map (key value pair)
-    //for each label the number of posts with that label -  map (key value pair)
-    //for each label and word, the number of posts with that label that contain that word 
-    // - map of pairs map<pair<string, string>, int > mapName;
-
     Classifier classi(trainFileName, testFileName, debugToggle);
 
+    // make sure that both input files open correctly
     try {
         csvstream csvin(trainFileName);
     }
@@ -195,26 +183,30 @@ int main(int argc, char *argv[]) {
     if(debugToggle) {
         classi.printFirstDebug();
     }
+
     classi.countPosts();
     classi.countWords();
     csvstream csvinTrain(trainFileName);
-    set<string> content;
-    set<string> labels;
-    string allWords;
-    string allLabels;
+    set<string> content, labels;
+    string allWords, allLabels;
     map<string, string> row;
+
     while(csvinTrain >> row) {
         allWords += row["content"] + " ";
         allLabels += row["tag"] + " ";
     }
+
     content = unique_words(allWords);
     labels = unique_words(allLabels);
+
     for(auto iter: content) {
         classi.numPostsWord(iter);
     }
+
     for(auto iter: labels) {
         classi.numPostsLabel(iter);
     }
+
     for(auto tag: labels) {
         for(auto word: content) {
             classi.numPostsWordLabel(word, tag);
@@ -224,32 +216,27 @@ int main(int argc, char *argv[]) {
     if(debugToggle) {
         classi.printSecondDebug();
     }
+
     csvstream csvinTest(testFileName);
-    double probability;
-    double maxProbability;
-    string maxTag;
-    string allTags;
-    map<string, string> row2;
-    map<string, string> contentToTag;
+    double prob, maxProb;
+    string maxTag, allTags;
+    map<string, string> row2, contentToTag; // maps the content to the most likely tag
+
+    // get all the unique tags from the test file
     while(csvinTest >> row2) {
-        allTags += row2["tag"];
+        allTags += row2["tag"] + " ";
     }
     set<string> tags = unique_words(allTags);
+
+    // calculate the most likely tag for each post
     while(csvinTest >> row2) {
         for(auto tag: tags) {
-            probability = classi.calcProb(row2["content"], tag);
-            if(probability > maxProbability) {
+            prob = classi.calcProb(row2["content"], tag);
+            if(prob > maxProb) {
                 maxTag = tag;
-                maxProbability = probability;
+                maxProb = prob;
             }
         }
         contentToTag[row2["content"]] = maxTag;
     }
-
-    //Classifier should compute the log-probability score of a post 
-    //given post X what is probability of label C
-    // ln(P(C)) = number of training posts with label C / number of training posts
-    // + log-likelihood (in specs)
-
-    //Read test file and predict a label using your classifier.
 }
