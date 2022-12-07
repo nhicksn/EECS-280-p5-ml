@@ -222,9 +222,9 @@ int main(int argc, char *argv[]) {
         cout << "  correct = " << row["tag"] << ", predicted = " << 
         classi.calcProb(row["content"]).first << ", log-probability score = " <<
         classi.calcProb(row["content"]).second << endl;
-        cout << "  content = " << row["content"] << endl << endl;
+        cout << "  content = " << row["content"] << endl;
     }
 
     cout << endl << "performace: " << numCorrect << " / " << totalNum << 
-    " posts predicted correctly" << endl << endl;
+    " posts predicted correctly" << endl;
 }
