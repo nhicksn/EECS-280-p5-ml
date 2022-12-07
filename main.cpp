@@ -225,6 +225,6 @@ int main(int argc, char *argv[]) {
         cout << "  content = " << row["content"] << endl;
     }
 
-    cout << endl << "performace: " << numCorrect << " / " << totalNum << 
+    cout << endl << "performance: " << numCorrect << " / " << totalNum << 
     " posts predicted correctly" << endl;
 }
