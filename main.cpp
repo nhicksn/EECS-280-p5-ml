@@ -145,11 +145,13 @@ int main(int argc, char *argv[]) {
     //error checking
     if (argc != 3 && argc != 4){
         cout << "Usage: main.exe TRAIN_FILE TEST_FILE [--debug]" << endl;
+        return 1;
     }
 
     if( argc == 4){
-        if (!strcmp(argv[3], "--debug")){
+        if (!strcmp(argv[3], " --debug")){
             cout << "Usage: main.exe TRAIN_FILE TEST_FILE [--debug]" << endl;
+            return 1;
         }   
     }
 
