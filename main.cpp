@@ -41,14 +41,11 @@ class Classifier {
             uniqueWords(0) {}
         
         void countPosts() {
-            try {
-                csvstream csvin(trainFile);
-                map<string, string> row;
-                csvin >> row;
-                totalPosts = stoi(row["n"]);
-                cout << "trained on " << totalPosts << " examples" << endl;
-            }
-            catch(bad_exception &e) {}
+            csvstream csvin(trainFile);
+            map<string, string> row;
+            csvin >> row;
+            totalPosts = stoi(row["n"]);
+            cout << "trained on " << totalPosts << " examples" << endl;
         }
 
         void countWords() {
@@ -110,7 +107,13 @@ class Classifier {
         }
 
         void printSecondDebug() {
-            for(auto iter: ) //idk what to do here
+            cout << "classes: " << endl;
+            for(auto iter: numPostsWithLabel) {
+                string label = iter.first;
+                int numPosts = numPostsWithLabel[label];
+                cout << label << ", " << numPosts << " examples, log-prior = " 
+                << log(1.0*numPosts/totalPosts) << endl;
+            }
         }
     
         // EFFECTS: Takes in a string of words and label and calculates the probability
@@ -201,8 +204,8 @@ int main(int argc, char *argv[]) {
     string allLabels;
     map<string, string> row;
     while(csvinTrain >> row) {
-        allWords += row["content"];
-        allLabels += row["tag"];
+        allWords += row["content"] + " ";
+        allLabels += row["tag"] + " ";
     }
     content = unique_words(allWords);
     labels = unique_words(allLabels);
