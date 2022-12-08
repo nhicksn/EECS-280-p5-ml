@@ -26,19 +26,12 @@ set<string> unique_words(const string &str) {
 
 class Classifier {
 private :
+    bool debugToggle;
     int totalPosts;
     set<string> uniqueWords;
     map<string, int> numPostsWithWord;
     map<string, int> numPostsWithLabel;
     map<pair<string, string>, int> numPostsWithLabelWithWord;
-        
-public :
-    Classifier() :
-        totalPosts(0) { }
-
-    void countPosts() {
-        totalPosts++;
-    }
 
     void countWords(const string &content) {
         set<string> uniqueContent = unique_words(content);
@@ -67,77 +60,24 @@ public :
         }
     }
 
-    void train(string filename, bool debugToggle) {
-        csvstream csvin(filename);
-        map<string, string> row;
-        while(csvin >> row) {
-            countPosts();
-            countWords(row["content"]);
-            numPostsWord(row["content"]);
-            numPostsLabel(row["tag"]);
-            numPostsWordLabel(row["content"], row["tag"]);
-            if(debugToggle) {
-                printFirstDebug(row["content"], row["tag"]);
-            }
-        }
-    }
-
-    void printFirstDebug(const string &content, const string &label) const {
-        cout << "  label = " << label << ", content = " << content << endl;
-    }
-
-    void printSecondDebug() {
-        cout << "classes:" << endl;
-        for(auto &iter: numPostsWithLabel) {
-            string label = iter.first;
-            int numPosts = numPostsWithLabel[label];
-            cout << "  " << label << ", " << numPosts << " examples, log-prior = " 
-            << log(1.0*numPosts/totalPosts) << endl;
-        }
-    }
-
-    void printThirdDebug() {
-        cout << "classifier parameters:" << endl;
-        for(auto &iter: numPostsWithLabel) {
-            string label = iter.first;
-            for(auto &word: uniqueWords) {
-                if(numPostsWithLabelWithWord.count({word, label})) {
-                    int count = numPostsWithLabelWithWord.at({word, label});
-                    cout << "  " << label << ":" << word << ", count = " << count
-                    << ", log-likelihood = " 
-                    << log(1.0*count/numPostsWithLabel[label]) << endl;
-                }
-            }
-        }
-        cout << endl;
-    }
-
-    void printNumPosts() {
-        cout << "trained on " << totalPosts << " examples" << endl;
-    }
-
-    void printNumWords() {
-        cout << "vocabulary size = " << uniqueWords.size() << endl;
-    }
-
-    pair<string, double> calcProb(const string &allContent) {
+    pair<string, double> calcProb(const string &allContent) const {
         set<string> content = unique_words(allContent);
         double maxProb = -INFINITY;
         string maxLabel;
         for(auto &iter: numPostsWithLabel) {
             double prob = 0;
             string label = iter.first;
-            prob += log(1.0*numPostsWithLabel[label]/totalPosts);
+            prob += log(1.0*numPostsWithLabel.at(label)/totalPosts);
             for(auto &word: content) {
                 if(!numPostsWithWord.count(word)) {
                     prob += log(1.0/totalPosts);
                 }
                 else if(!numPostsWithLabelWithWord.count({word, label})) {
-                    prob += log(1.0*numPostsWithWord[word]/totalPosts);
+                    prob += log(1.0*numPostsWithWord.at(word)/totalPosts);
                 }
                 else {
-                    prob += log(1.0*numPostsWithLabelWithWord[{word, label}]
-                                /numPostsWithLabel[label]);
+                    prob += log(1.0*numPostsWithLabelWithWord.at({word, label})
+                                /numPostsWithLabel.at(label));
                 }
             }
             if(prob > maxProb) {
@@ -147,8 +87,70 @@ public :
         }
         return {maxLabel, maxProb};
     }
+        
+public :
+    Classifier(bool debug) :
+        debugToggle(debug), totalPosts(0) { }
 
-    void test(string filename) {
+    void train(string filename) {
+        csvstream csvin(filename);
+        map<string, string> row;
+        if(debugToggle) {
+            cout << "training data:" << endl;
+        }
+        while(csvin >> row) {
+            totalPosts++;
+            countWords(row["content"]);
+            numPostsWord(row["content"]);
+            numPostsLabel(row["tag"]);
+            numPostsWordLabel(row["content"], row["tag"]);
+            if(debugToggle) {
+                cout << "  label = " << row["tag"] << ", content = " << row["content"] 
+                << endl;
+            }
+        }
+    }
+
+    void printFirstDebug(const string &content, const string &label) const {
+        cout << "  label = " << label << ", content = " << content << endl;
+    }
+
+    void printSecondDebug() const {
+        cout << "classes:" << endl;
+        for(auto &iter: numPostsWithLabel) {
+            string label = iter.first;
+            int numPosts = numPostsWithLabel.at(label);
+            cout << "  " << label << ", " << numPosts << " examples, log-prior = " 
+            << log(1.0*numPosts/totalPosts) << endl;
+        }
+    }
+
+    void printThirdDebug() const {
+        cout << "classifier parameters:" << endl;
+        for(auto &iter: numPostsWithLabel) {
+            string label = iter.first;
+            for(auto &word: uniqueWords) {
+                if(numPostsWithLabelWithWord.count({word, label})) {
+                    int count = numPostsWithLabelWithWord.at({word, label});
+                    cout << "  " << label << ":" << word << ", count = " << count
+                    << ", log-likelihood = " 
+                    << log(1.0*count/numPostsWithLabel.at(label)) << endl;
+                }
+            }
+        }
+        cout << endl;
+    }
+
+    void printNumPosts() const {
+        cout << "trained on " << totalPosts << " examples" << endl;
+    }
+
+    void printNumWords() const {
+        cout << "vocabulary size = " << uniqueWords.size() << endl;
+    }
+
+    void test(string filename) const {
+        cout << "test data:" << endl;
         csvstream csvin(filename);
         int numCorrect = 0; int totalNum = 0;
     
@@ -190,7 +192,8 @@ int main(int argc, char *argv[]) {
     bool debugToggle = false;
     if(argc == 4) { debugToggle = true; }
 
-    string trainFileName = argv[1]; string testFileName = argv[2]; Classifier classi;
+    string trainFileName = argv[1]; string testFileName = argv[2]; 
+    Classifier classi(debugToggle);
 
     // make sure that both input files open correctly
     try { csvstream csvin(trainFileName); }
@@ -203,17 +206,14 @@ int main(int argc, char *argv[]) {
         cout << "Error opening file: " << testFileName << endl; return 1;
     }
 
-    if(debugToggle) { cout << "training data:" << endl; }
-
     // train the classifier
-    classi.train(trainFileName, debugToggle);
+    classi.train(trainFileName);
     
     // print the trained data
     classi.printNumPosts();
     if(debugToggle) { classi.printNumWords(); }; cout << endl;
     if(debugToggle) { classi.printSecondDebug(); classi.printThirdDebug(); }
 
-    cout << "test data:" << endl;
-
+    // run the test
     classi.test(testFileName);
 }
