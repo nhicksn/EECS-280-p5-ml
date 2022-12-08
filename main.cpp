@@ -122,7 +122,7 @@ public :
 
     pair<string, double> calcProb(const string &allContent) {
         set<string> content = unique_words(allContent);
-        double maxProb = -1000000;
+        double maxProb = -INFINITY;
         string maxLabel;
         for(auto &iter: numPostsWithLabel) {
             double prob = 0;
