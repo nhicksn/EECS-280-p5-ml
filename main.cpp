@@ -162,10 +162,10 @@ public :
             cout << "  correct = " << row["tag"] << ", predicted = " << 
             calcProb(row["content"]).first << ", log-probability score = " <<
             calcProb(row["content"]).second << endl;
-            cout << "  content = " << row["content"] << endl;
+            cout << "  content = " << row["content"] << endl << endl;
         }
 
-        cout << endl << "performance: " << numCorrect << " / " << totalNum << 
+        cout << "performance: " << numCorrect << " / " << totalNum << 
         " posts predicted correctly" << endl;
     }
 };
